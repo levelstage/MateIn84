@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/MateIn84/">
+    <Project Path="MateIn84/MateIn84.csproj" />
+  </Folder>
+  <Project Path="GfEngine/GfEngine.csproj" />
+</Solution>
