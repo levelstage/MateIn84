@@ -4,23 +4,31 @@ namespace GfEngine.Battles.Modules.Buffs
 {
     public interface IBuff
     {
-        // 기본 정보
         string ID { get; }
         string Name { get; }
         string Description { get; }
-        string IconPath { get; }
         
-        // 상태 (인스턴스마다 다름)
-        int Duration { get; set; } // 남은 턴
-        int Stack { get; set; }    // 중첩 수
-        bool IsExpired { get; }    // "나 끝났어? 지워줘."
+        // 지속시간 (턴)
+        int Duration { get; set; }
+        // 중첩 (Stack)
+        int Stack { get; set; }
+        // 만료 여부 확인
+        bool IsExpired { get; }
+        
+        // 버프의 속성 4가지
+        bool IsRemovable { get; }
+        bool IsBuff { get; }
+        bool IsDebuff{ get; }
+        bool IsVisible { get; }
 
-        // === [1. 복제 (필수)] ===
-        // 리플렉션으로 원본을 가져오면, 유닛에게 줄 때는 '복사본'을 줘야 함
-        IBuff Clone(); 
+        // [중요] 원본을 복제해서 유닛에게 줌
+        IBuff Clone();
 
-        // === [2. 생명주기 훅 (Logic)] ===
-        void OnApply(Unit target);      // 처음 걸렸을 때
-        void OnRemove(Unit target);     // 지워질 때 (스탯 원복 등)
+        // 생명주기
+        void OnApply(Unit target);
+        void OnRemove(Unit target);
+        
+        // 턴 감소 로직 (Unit.EndTurn 등에서 호출)
+        void TickDuration(Unit target);
     }
 }
