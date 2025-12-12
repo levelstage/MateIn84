@@ -8,7 +8,7 @@ namespace GfEngine.Battles.Units
         public int Str; // 근력 (Strength) -> 물공, 제압력, 무게
 
         // === [2. 척후 계열 (Technique)] ===
-        public int Agi; // 민첩 (Agility) -> AP (행동력)
+        public int Agi; // 민첩 (Agility) -> AG(Action Gauge)가 차는 속도
         public int Dex; // 솜씨 (Dexterity) -> 치명타 피해량
         public int Luk; // 행운 (Luck) -> 브레이크 저항, 드랍율 (성장불가)
 

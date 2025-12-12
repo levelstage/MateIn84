@@ -5,7 +5,6 @@ namespace GfEngine.Battles.Units
         // === [자원 (Resources)] ===
         public int MaxHP;
         public int MaxMP;
-        public int MaxAP;       // 행동력
         public int MaxPoise;    // 강인도 (End + Spr)
         public int MaxWeight;   // 무게 한도 (Str + End)
 
@@ -21,6 +20,7 @@ namespace GfEngine.Battles.Units
         public int CritResist;  // 브레이크 시 치명타 저항률 (%)
         
         // === [유틸 (Utility)] ===
+        public int Speed; // 속도
         public int DropRateBonus; // 아이템 드랍 확률 보정
     }
 }

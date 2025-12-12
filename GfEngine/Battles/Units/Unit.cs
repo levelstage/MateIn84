@@ -4,10 +4,12 @@ using GfEngine.Battles.Systems;
 
 namespace GfEngine.Battles.Units
 {
+    public enum UnitType { Player, Enemy }
     public class Unit
     {
         // === [기본 정보] ===
         public string Name { get; set; } = "Unknown";
+        public UnitType Type { get; set; }
         public int Level { get; set; } = 1;
 
         // === [A. 스탯 관련 로직들] ===
@@ -23,6 +25,20 @@ namespace GfEngine.Battles.Units
         public int CurrentHP;
         public int CurrentMP;
         public int CurrentPoise;
+        public double CurrentAG;
+        public bool IsDead => CurrentHP == 0;
+        // AG 관련
+        public void ResetAG()
+        {
+            CurrentAG = 10000.0 / CombatStats.Speed; 
+        }
+
+        // 초기화
+        public void InitializeAV()
+        {
+            // 첫 턴은 랜덤성을 주거나 절반으로 시작
+            CurrentAG = 10000.0 / CombatStats.Speed; 
+        }
 
         // === [스탯 조작기 (Modifier)] ===
         public List<StatModifier> StatModifiers = new List<StatModifier>();
@@ -95,7 +111,6 @@ namespace GfEngine.Battles.Units
             // 3-1. 자원
             final.MaxHP = t.Vit * 2;
             final.MaxMP = t.Mag + t.Int;
-            final.MaxAP = 4 + (t.Agi / 10);      // 민첩 10당 AP +1
             final.MaxPoise = t.End + t.Spr;      // 지구력 + 정신력
             final.MaxWeight = t.Str + t.End;     // 근력 + 지구력
 
