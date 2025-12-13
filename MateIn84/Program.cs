@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using GfEngine.Battles.Systems;
-using GfEngine.Battles.Units;
+using GfEngine.Battles.Modules.Entities.Units;
 using GfEngine.Visualizers.ConsoleViz;
 
 class Program
@@ -16,9 +16,9 @@ class Program
         // 2. 유닛 생성
         var units = new List<Unit>
         {
-            new Unit { Name = "King(Player)", Type = UnitType.Player},
-            new Unit { Name = "Hagen(Player)", Type = UnitType.Player,},
-            new Unit { Name = "Goblin(Enemy)", Type = UnitType.Enemy,} // 빠름!
+            new Unit { ID ="1", Name = "King(Player)", CurrentHP = 10, Type = UnitType.Player},
+            new Unit { ID ="2", Name = "Hagen(Player)", CurrentHP = 10, Type = UnitType.Player,},
+            new Unit { ID ="3", Name = "Goblin(Enemy)", CurrentHP = 10, Type = UnitType.Enemy,} // 빠름!
         };
         units[0].CombatStats.Speed = 100;
         units[1].CombatStats.Speed = 80;
@@ -31,9 +31,6 @@ class Program
         // 엔진 업데이트는 없지만, 프로세스가 죽지 않게 잡아두는 역할
         while (true)
         {
-            // 만약 렌더러가 Draw 루프가 필요하다면 여기서 호출
-            // visualizer.Render(); 
-            
             Thread.Sleep(100);
         }
     }

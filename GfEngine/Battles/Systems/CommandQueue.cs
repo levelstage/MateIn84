@@ -13,12 +13,15 @@ namespace GfEngine.Battles.Systems
     public class CommandQueue
     {
         private LinkedList<ICommand> _list = new LinkedList<ICommand>();
-        private bool _isRunning = false;
 
         // 커맨드 추가 (도미노 세우기)
         public void Enqueue(ICommand cmd)
         {
             _list.AddLast(cmd);
+        }
+
+        public void Run()
+        {
             TryRunNext();
         }
 
@@ -26,8 +29,6 @@ namespace GfEngine.Battles.Systems
         private void TryRunNext()
         {
             // 이미 돌아가는 중이면 건드리지 않음
-            if (_isRunning) return;
-
             // 큐가 비었으면 -> 매니저에게 "턴 끝났음" 보고
             if (_list.Count == 0)
             {
@@ -36,7 +37,6 @@ namespace GfEngine.Battles.Systems
             }
 
             // 실행 시작
-            _isRunning = true;
             var cmd = _list.First?.Value;
             _list.RemoveFirst();
 
@@ -47,7 +47,6 @@ namespace GfEngine.Battles.Systems
         // 커맨드가 완료되었다고 보고함
         private void OnCommandFinished()
         {
-            _isRunning = false;
             TryRunNext(); // 다음 도미노 넘김
         }
     }

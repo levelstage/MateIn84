@@ -1,4 +1,4 @@
-namespace GfEngine.Battles.Units
+namespace GfEngine.Battles.Modules.Entities.Units
 {
     public struct PrimaryStat
     {

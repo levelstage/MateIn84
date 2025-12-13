@@ -1,14 +1,18 @@
-using System;
-using System.Collections.Generic;
 using GfEngine.Battles.Systems;
 
-namespace GfEngine.Battles.Units
+namespace GfEngine.Battles.Modules.Entities.Units
 {
     public enum UnitType { Player, Enemy }
-    public class Unit
+
+    public enum TurnLength
+    {
+        Quater = 2500, // 쿼터 턴 (대기, 무기 스왑)
+        Half = 5000, // 하프 턴 (이동, 방어, 유틸기)
+        Full = 10000 // 풀 턴 (공격, 스킬)
+    }
+    public class Unit : Entity
     {
         // === [기본 정보] ===
-        public string Name { get; set; } = "Unknown";
         public UnitType Type { get; set; }
         public int Level { get; set; } = 1;
 
@@ -27,17 +31,31 @@ namespace GfEngine.Battles.Units
         public int CurrentPoise;
         public double CurrentAG;
         public bool IsDead => CurrentHP == 0;
-        // AG 관련
-        public void ResetAG()
+        // AG 리셋
+        public void ResetAG(TurnLength length)
         {
-            CurrentAG = 10000.0 / CombatStats.Speed; 
+            CurrentAG = (double) length / CombatStats.Speed; 
         }
 
-        // 초기화
-        public void InitializeAV()
+        public void RecalcAG(int oldSpeed, int newSpeed)
         {
-            // 첫 턴은 랜덤성을 주거나 절반으로 시작
-            CurrentAG = 10000.0 / CombatStats.Speed; 
+            // 속도가 안바뀌었다면 그냥 return.
+            if (oldSpeed == newSpeed)
+            {
+                return;
+            }
+            // AG 재정규화 공식 적용: New AG = (Current AG * Old Speed) / New Speed
+            if (CurrentAG > 0)
+            {
+                CurrentAG = CurrentAG * oldSpeed / newSpeed; 
+            }
+        }
+
+        // AG 초기화
+        public void InitializeAG()
+        {
+            // 첫 턴은 쿼터 턴 기준으로 스타트.
+            CurrentAG = (double)TurnLength.Quater / CombatStats.Speed; 
         }
 
         // === [스탯 조작기 (Modifier)] ===
@@ -86,7 +104,7 @@ namespace GfEngine.Battles.Units
                         
                     case StatModType.PercentAdd:
                         // 예: 10% -> 0.1f로 변환해서 누적
-                        pctSum[index] += (mod.Value / 100f); 
+                        pctSum[index] += mod.Value / 100f; 
                         break;
                 }
             }
@@ -109,22 +127,21 @@ namespace GfEngine.Battles.Units
             DerivedStat final = new DerivedStat();
 
             // 3-1. 자원
-            final.MaxHP = t.Vit * 2;
-            final.MaxMP = t.Mag + t.Int;
-            final.MaxPoise = t.End + t.Spr;      // 지구력 + 정신력
-            final.MaxWeight = t.Str + t.End;     // 근력 + 지구력
+            final.MaxHP = t.Vit * 2;  // 생명력 * 2
+            final.MaxMP = t.Mag + t.Int;  // 마력 + 지능
+            final.MaxPoise = t.End * 2 + t.Spr;  // 지구력 + 정신력. 지구력이 더 중요함.
+            final.MaxWeight = t.Str + t.End;  // 근력 + 지구력
 
             // 3-2. 공격
-            final.AtkPhy = t.Str / 3;
-            final.AtkMag = t.Mag / 3;
-            final.Suppression = (t.Str * 2) + (t.Mag / 2);
+            final.AtkPhy = t.Str / 3;  // 근력 / 3
+            final.AtkMag = t.Mag / 3;  // 마력 / 3
+            final.Suppression = 5;  // 고정치. 장비에 의존함.
             final.CritDmg = 150 + (t.Dex * 5);   // 기본 150% + 솜씨 보정
 
             // 3-3. 방어 & 유틸
-            final.DefPhy = (t.Vit + t.End) / 10;
-            final.DefMag = (t.Spr + t.Mag) / 10;
+            final.DefPhy = t.Vit / 5 + t.End / 10;  // 생명력과 지구력에 의해 결정됨. 생명력이 더 중요.
+            final.DefMag = t.Vit / 10 + t.Spr / 5;  // 생명력과 정신력에 의해 결정됨. 정신력이 더 중요.
             final.CritResist = Math.Min(60, t.Luk * 5); // 최대 60%
-            final.DropRateBonus = t.Luk * 2;
 
 
             // [Step 4] 파생 스탯 최종 보정 (Modifier 적용)

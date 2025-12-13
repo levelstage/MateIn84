@@ -1,4 +1,4 @@
-namespace GfEngine.Battles.Units
+namespace GfEngine.Battles.Modules.Entities.Units
 {
     public struct DerivedStat
     {
@@ -19,8 +19,7 @@ namespace GfEngine.Battles.Units
         public int DefMag;      // 마법 방어력
         public int CritResist;  // 브레이크 시 치명타 저항률 (%)
         
-        // === [유틸 (Utility)] ===
+        // === [속도 (Speed)] ===
         public int Speed; // 속도
-        public int DropRateBonus; // 아이템 드랍 확률 보정
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using GfEngine.Battles.Systems;
-using GfEngine.Battles.Units;
+using GfEngine.Battles.Modules.Entities.Units;
 
 namespace GfEngine.Battles.Commands
 {

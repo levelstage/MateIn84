@@ -1,4 +1,4 @@
-namespace GfEngine.Battles.Units
+namespace GfEngine.Battles.Modules.Entities.Units
 {
     // 어떤 스탯을 건드릴 거니?
     public enum StatType

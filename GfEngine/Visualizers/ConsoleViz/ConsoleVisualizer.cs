@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using GfEngine.Battles.Interfaces;
-using GfEngine.Battles.Units;
+using GfEngine.Battles.Modules.Entities.Units;
 
 namespace GfEngine.Visualizers.ConsoleViz
 {
@@ -18,7 +18,7 @@ namespace GfEngine.Visualizers.ConsoleViz
         {
             // 1. 연출 시작 로그
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[Visual] 🎬 '{animName}' ({target.Name}) 재생 중...");
+            Console.WriteLine($"[Visual] '{animName}' ({target.Name}) 재생 중...");
             Console.ResetColor();
 
             // 2. 시간 끌기 (애니메이션 길이 시뮬레이션: 1초)
@@ -26,7 +26,7 @@ namespace GfEngine.Visualizers.ConsoleViz
 
             // 3. 연출 종료 로그
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"[Visual] ✅ '{animName}' 완료.");
+            Console.WriteLine($"[Visual] '{animName}' 완료.");
             Console.ResetColor();
 
             // 4. 엔진에게 보고 (큐 잠금 해제!)
@@ -35,7 +35,7 @@ namespace GfEngine.Visualizers.ConsoleViz
 
         public void TriggerEffect(string effectName, Unit target)
         {
-            Console.WriteLine($"[Effect] ✨ {effectName}!");
+            Console.WriteLine($"[Effect] {effectName}!");
         }
     }
 }
