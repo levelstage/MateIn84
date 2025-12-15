@@ -1,6 +1,6 @@
 using GfEngine.Core;
-using GfEngine.Battles.Modules.Augments.Items;
-namespace GfEngine.Battles.Modules.Entities.Units.Actors
+using GfEngine.Battles.Augments;
+namespace GfEngine.Battles.Entities
 {
     // [변경] CharacterData -> ActorData
     // 플레이어블 캐릭터(Actor)의 영속적인 정보를 담습니다.

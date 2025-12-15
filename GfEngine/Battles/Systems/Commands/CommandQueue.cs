@@ -4,12 +4,6 @@ using System.Collections.Generic;
 namespace GfEngine.Battles.Systems
 {
     // 모든 커맨드의 규격
-    public interface ICommand
-    {
-        // 실행 시 '완료 보고용 콜백'을 받음
-        void Execute(Action onComplete);
-    }
-
     public class CommandQueue
     {
         private LinkedList<ICommand> _list = new LinkedList<ICommand>();
@@ -32,7 +26,7 @@ namespace GfEngine.Battles.Systems
             // 큐가 비었으면 -> 매니저에게 "턴 끝났음" 보고
             if (_list.Count == 0)
             {
-                BattleManager.Instance.OnQueueEmpty();
+                TurnManager.Instance.OnQueueEmpty();
                 return;
             }
 

@@ -1,19 +1,15 @@
 using System.Net.Cache;
+using GfEngine.Battles.Entities;
 
-namespace GfEngine.Battles.Modules.Dungeons
+namespace GfEngine.Battles.Dungeons
 {
     public abstract class DungeonNode
     {
         public required int[,] Tiles;
         public required Dictionary<int, TileMetadata> TileInfo;
+        public required List<Entity> Entities;
         public int Height;
         public int Width;
-        public string[,]? Holder;
-        // 아래는 Tiled에서 만들어둔 Object Lyaer의 Object들
-
-        // List<Enemy> Enemies;
-        // List<GroundEffect> GroundEffects;
-        // ...
         
     }
     public struct TileMetadata 

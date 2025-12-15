@@ -1,7 +1,6 @@
 using GfEngine.Battles.Core;
-using GfEngine.Battles.Modules;
 
-namespace GfEngine.Battles.Modules.Entities
+namespace GfEngine.Battles.Entities
 {
     public abstract class Entity : BattleElement
     {

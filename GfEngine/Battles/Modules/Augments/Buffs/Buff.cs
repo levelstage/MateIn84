@@ -1,6 +1,6 @@
-using GfEngine.Battles.Modules.Entities.Units;
+using GfEngine.Battles.Entities;
 
-namespace GfEngine.Battles.Modules.Augments.Buffs
+namespace GfEngine.Battles.Augments
 {
     public abstract class Buff : Augment
     {   

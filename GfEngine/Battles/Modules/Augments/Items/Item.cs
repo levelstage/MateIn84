@@ -1,4 +1,4 @@
-namespace GfEngine.Battles.Modules.Augments.Items
+namespace GfEngine.Battles.Augments
 {
     public abstract class Item : Augment
     {

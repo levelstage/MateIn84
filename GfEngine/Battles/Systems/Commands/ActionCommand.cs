@@ -1,7 +1,6 @@
 using System;
-using GfEngine.Battles.Systems;
 
-namespace GfEngine.Battles.Commands
+namespace GfEngine.Battles.Systems
 {
     // 로직(데미지 계산 등)을 수행하는 커맨드
     public class ActionCommand : ICommand

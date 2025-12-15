@@ -1,6 +1,7 @@
+using GfEngine.Battles.Augments;
 using GfEngine.Battles.Systems;
 
-namespace GfEngine.Battles.Modules.Entities.Units
+namespace GfEngine.Battles.Entities
 {
     public enum UnitType { Player, Enemy }
 
@@ -30,7 +31,10 @@ namespace GfEngine.Battles.Modules.Entities.Units
         public int CurrentMP;
         public int CurrentPoise;
         public double CurrentAG;
+        // 4. 편의상의 속성들 (Speed, IsDead)
+        public int Speed => CombatStats.Speed;
         public bool IsDead => CurrentHP == 0;
+        public List<Skill> Skills = new List<Skill>();
         // AG 리셋
         public void ResetAG(TurnLength length)
         {

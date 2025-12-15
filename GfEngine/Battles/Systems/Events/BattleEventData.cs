@@ -1,4 +1,4 @@
-using GfEngine.Battles.Modules.Units;
+using GfEngine.Battles.Entities;
 
 namespace GfEngine.Battles.Systems
 {
