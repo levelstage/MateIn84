@@ -1,3 +1,4 @@
+using GfEngine.Battles.Core;
 using GfEngine.Battles.Augments;
 using GfEngine.Battles.Systems;
 
@@ -5,12 +6,6 @@ namespace GfEngine.Battles.Entities
 {
     public enum UnitType { Player, Enemy }
 
-    public enum TurnLength
-    {
-        Quater = 2500, // 쿼터 턴 (대기, 무기 스왑)
-        Half = 5000, // 하프 턴 (이동, 방어, 유틸기)
-        Full = 10000 // 풀 턴 (공격, 스킬)
-    }
     public class Unit : Entity
     {
         // === [기본 정보] ===
@@ -32,7 +27,15 @@ namespace GfEngine.Battles.Entities
         public int CurrentPoise;
         public double CurrentAG;
         // 4. 편의상의 속성들 (Speed, IsDead)
-        public int Speed => CombatStats.Speed;
+        public int Speed
+        {
+            get { return CombatStats.Speed; }
+            set
+            {
+                RecalcAG(CombatStats.Speed, value);
+                CombatStats.Speed = value;
+            }
+        }
         public bool IsDead => CurrentHP == 0;
         public List<Skill> Skills = new List<Skill>();
         // AG 리셋
@@ -59,7 +62,7 @@ namespace GfEngine.Battles.Entities
         public void InitializeAG()
         {
             // 첫 턴은 쿼터 턴 기준으로 스타트.
-            CurrentAG = (double)TurnLength.Quater / CombatStats.Speed; 
+            CurrentAG = (double)TurnLength.Quarter / CombatStats.Speed; 
         }
 
         // === [스탯 조작기 (Modifier)] ===

@@ -1,7 +1,8 @@
 using GfEngine.Battles.Augments;
 using GfEngine.Inputs;
+using GfEngine.Core;
 
-namespace GfEngine.Battles.Systems
+namespace GfEngine.Battles.Commands
 {
     public class InputCommand : ICommand
     {
@@ -22,30 +23,35 @@ namespace GfEngine.Battles.Systems
             {
                 _context.Reset(_context.Caster);
             }
-            // 아래 null에는 원래 유닛 리스트를 정렬해서 넣어줘야 한다. 아직 미구현.
             if(_context.SelectedSkillIndex == -1)
             {
-                TurnManager.Instance.Queue.Enqueue(new InputCommand(_context, _inputAdapter));
-                _inputAdapter.GetSkillIndex(_context, null, onComplete);
+                CommandQueue.Instance.Enqueue(new InputCommand(_context, _inputAdapter));
+                // 밑에 있는 애한테, 현재 이 유닛의 스킬들의 목록, 쿨타임 등을 넘겨줘야 함.
+                _inputAdapter.GetSkillIndex(_context, onComplete);
                 return;
             }
-            SkillArgument arg = _context.Caster.Skills[_context.SelectedSkillIndex].RequiredArgument(_context);
+            Skill skill = _context.Caster.Skills[_context.SelectedSkillIndex];
+            SkillArgument arg = skill.RequiredArgument(_context);
             if(arg == SkillArgument.None)
             {
-                _context.Caster.Skills[_context.SelectedSkillIndex].EnqueueCommands(_context);
+                skill.Cast(_context);
                 onComplete();
             }
             else
             {
+                SkillDomain domain = skill.GetDomain(_context);
                 if(arg == SkillArgument.XYs)
                 {
-                    TurnManager.Instance.Queue.Enqueue(new InputCommand(_context, _inputAdapter));
-                    _inputAdapter.GetXYs(_context, null, onComplete);
+                    CommandQueue.Instance.Enqueue(new InputCommand(_context, _inputAdapter));
+                    _inputAdapter.GetXYs(_context, domain, onComplete);
                 }
                 else if(arg == SkillArgument.YesNo)
                 {
-                    TurnManager.Instance.Queue.Enqueue(new InputCommand(_context, _inputAdapter));
-                    _inputAdapter.GetYesNo(_context, null, onComplete);
+                    skill.ShowPreview(_context, () =>
+                    {
+                        CommandQueue.Instance.Enqueue(new InputCommand(_context, _inputAdapter));
+                        _inputAdapter.GetYesNo(_context, onComplete);
+                    });
                 }
             }
         }

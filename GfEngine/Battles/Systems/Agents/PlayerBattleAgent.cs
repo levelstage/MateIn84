@@ -1,5 +1,6 @@
-using GfEngine.Battles.Entities;
 using GfEngine.Inputs;
+using GfEngine.Battles.Commands;
+using GfEngine.Core;
 
 namespace GfEngine.Battles.Systems
 {
@@ -12,7 +13,7 @@ namespace GfEngine.Battles.Systems
         }
         public void EnqueueCommands(BattleInputContext context)
         {
-            TurnManager.Instance.Queue.Enqueue(new InputCommand(context, InputAdapter));
+            CommandQueue.Instance.Enqueue(new InputCommand(context, InputAdapter));
         }
     }   
 }

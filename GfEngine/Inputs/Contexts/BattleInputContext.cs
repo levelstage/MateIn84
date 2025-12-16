@@ -6,6 +6,7 @@ public class BattleInputContext
 {
     public Unit? Caster { get; set; }
     public bool IsCancelled { get; set; } = false;
+    public bool IsConfirmed { get; set; } = false;
     public int SelectedSkillIndex { get; set; } = -1;
     public List<(int, int)> SelectedCoordinates { get; set; } = new();
 

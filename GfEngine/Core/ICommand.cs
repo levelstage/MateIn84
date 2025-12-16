@@ -1,4 +1,4 @@
-namespace GfEngine.Battles.Systems
+namespace GfEngine.Core
 {
     // 모든 커맨드의 규격
     public interface ICommand

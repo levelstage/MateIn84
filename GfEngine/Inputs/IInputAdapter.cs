@@ -1,13 +1,11 @@
-using System;
-using GfEngine.Battles.Entities;
-using GfEngine.Battles.Systems; // Command가 있는 곳
+using GfEngine.Battles.Augments;
 
 namespace GfEngine.Inputs
 {
     public interface IInputAdapter
     {
-        void GetSkillIndex(BattleInputContext context, List<Unit> unitsOrderedByAG, Action onComplete);
-        void GetXYs(BattleInputContext context, List<Unit> unitsOrderedByAG, Action onComplete);
-        void GetYesNo(BattleInputContext context, List<Unit> unitsOrderedByAG, Action onComplete);
+        void GetSkillIndex(BattleInputContext context, Action onComplete);
+        void GetXYs(BattleInputContext context, SkillDomain domain, Action onComplete);
+        void GetYesNo(BattleInputContext context, Action onComplete);
     }
 }

@@ -1,9 +1,9 @@
 using GfEngine.Visuals;
 using GfEngine.Inputs;
 
-namespace GfEngine.Core;
+namespace GfEngine.Systems;
 
-// 게임 전체를 총괄하는 관리자 (엔진의 본체)
+// 게임 전체를 총괄하는 관리자 (엔진의 본체이자 모든 관리자의 상관)
 public class SessionManager
 {
     // 1. 싱글턴 인스턴스
@@ -11,24 +11,23 @@ public class SessionManager
     public static SessionManager Instance => _instance ??= new SessionManager();
 
     // 2. 핵심 의존성 (생성자가 아니라 Init으로 받음)
-    public IVisualizer Visualizer { get; private set; } = null!;
-    public IInputAdapter Input { get; private set; } = null!;
-
-    // 3. 상태 데이터 (현재 배틀 중? 마을?)
-    // public GameContext Context { get; private set; }
+    public IInputAdapter? Input { get; private set; }  // Input Stream
+    public IVisualizer? Visualizer { get; private set; }  // Output Stream
 
     private SessionManager() { } // 외부 생성 막음
 
-    // 4. 시동 걸기 (클라이언트가 호출)
+    // 3. 시동 걸기 (클라이언트가 호출)
     public void Initialize(IVisualizer visualizer, IInputAdapter input)
     {
         Visualizer = visualizer;
         Input = input;
-        
+        // 큐의 주도권이 불러온 게임 데이터의 상태에 따라 주어짐.
+        // QueueManager = TownManager.Instance()
+        // QueueManager = TurnManager.Instance()
         Console.WriteLine("Engine Started. Ready to roll.");
     }
 
-    // 5. 게임 시작
+    // 4. 게임 시작
     public void StartNewGame()
     {
         // ... 세이브 데이터 로드 ...
