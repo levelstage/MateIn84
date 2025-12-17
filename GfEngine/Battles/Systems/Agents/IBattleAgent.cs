@@ -1,10 +1,11 @@
 using GfEngine.Battles.Entities;
+using GfEngine.Core;
 using GfEngine.Inputs;
 
 namespace GfEngine.Battles.Systems
 {
     public interface IBattleAgent
     {
-        void EnqueueCommands(BattleInputContext context);
+        IBehavior MakeBehavior(Unit currentUnit);
     }
 }

@@ -1,6 +1,7 @@
 using GfEngine.Battles.Core;
 using GfEngine.Battles.Entities;
-using GfEngine.Inputs;
+using GfEngine.Core;
+using GfEngine.Systems.Commands;
 
 namespace GfEngine.Battles.Managers
 {
@@ -8,21 +9,13 @@ namespace GfEngine.Battles.Managers
     {
         private static TurnManager? _instance;
         public static TurnManager Instance => _instance ??= new TurnManager();
-        private BattleInputContext inputContext = new BattleInputContext(null);
         public Unit? CurrentUnit { get; private set; }
 
         // 전투 시작 함수. 임시이고, 원래는 DungeonNode 파일을 읽어와서 던전부터 생성해야 함.
         public void StartBattle(List<Unit> units)
         {
             foreach (var u in units) u.InitializeAG();
-            inputContext = new BattleInputContext(null); // 입력 컨텍스트 초기화.
             ProcessNextTurn(); // 첫 턴 계산
-        }
-
-        // 큐가 비었을 때 호출됨 (이전 유닛 행동 종료)
-        public void OnQueueEmpty()
-        {
-            ProcessNextTurn();
         }
 
         // CTB 턴 계산 (Update 루프 없이 수학적으로 시간 건너뜀)
@@ -42,19 +35,29 @@ namespace GfEngine.Battles.Managers
             }
 
             CurrentUnit = nextUnit;
-
-            // 3. 행동 결정
-            if (CurrentUnit.Type == UnitType.Enemy)
-            {
-                // 적 AI: 즉시 커맨드 생성
-            }
-            else
-            {
-                // 플레이어: 입력 대기 (여기선 시뮬레이션을 위해 자동 공격 처리)
-                // 실제론 여기서 UI 띄우고 함수 종료 -> 나중에 Input 받아서 Enqueue
-                
-            }
+            OnTurnStart();
         }
+        // 
+        private void ProcessTurn()
+        {
+            if(CurrentUnit == null) throw new Exception("Turn is processed without Unit.");
+            if(CurrentUnit.Controller == null) throw new Exception("Unit must process turn with Controller");
+            Sequence mainPhase = new Sequence();
+            mainPhase.Enqueue(CurrentUnit.Controller.MakeBehavior(CurrentUnit));
+            mainPhase.Execute(OnTurnEnd);
+        }
+
+        private void OnTurnStart()
+        {
+            // 여기서 턴 시작 처리를 해주고, 콜백으로 ProcessTurn을 넘긴다.
+        }
+
+        private void OnTurnEnd()
+        {
+            // 여기서 턴 종료 처리를 해주고, 콜백으로 ProcessNextTurn을 넘긴다.
+        }
+
+
         // [Helper] 현재 유닛들의 행동 순서를 알려주는 함수
         // 반환 타입을 (string ID, double AG)로 명시하여 가독성 확보
         public List<(string ID, double AG)> GetUnitOrder()
@@ -67,7 +70,7 @@ namespace GfEngine.Battles.Managers
         }
 
         // [Helper] 어떤 유닛이 행동한 후 다음 행동 순서 예측 함수
-        public List<(string ID, double AG)> PredictNextOrder(Unit caster, TurnLength length)
+        public List<(string, double)> PredictNextOrder(Unit caster, TurnLength length)
         {
             // 1. Caster가 행동 후 갖게 될 새로운 AG 계산
             double nextAG = (double)length / caster.Speed;

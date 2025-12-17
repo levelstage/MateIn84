@@ -1,5 +1,6 @@
 using GfEngine.Inputs;
 using GfEngine.Battles.Core;
+using GfEngine.Core;
 
 namespace GfEngine.Battles.Augments.CommonSkills
 {
@@ -22,15 +23,17 @@ namespace GfEngine.Battles.Augments.CommonSkills
         }
 
         // 3. 미리보기: "내 턴이 언제 다시 돌아오는지"만 보여주면 됨. 다른건 변화 x
-        protected override void OnPreview(BattleInputContext context)
+        protected override IBehavior OnPreview(BattleInputContext context)
         {
             // 하는 일 아예 없음. (공통 미리보기(행동순서)만 있으면 충분.)
+            return new Behavior();
         }
 
         // 4. 실행
-        protected override void OnCast(BattleInputContext context)
+        protected override IBehavior OnCast(BattleInputContext context)
         {
             // 역시 아무것도 하지 않는다. (공통 행동(턴 넘어가기)만 함.)
+            return new Behavior();
         }
 
         public override Skill Clone()

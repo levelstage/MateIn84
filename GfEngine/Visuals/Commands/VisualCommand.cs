@@ -1,7 +1,8 @@
-using GfEngine.Visuals.Events;
 using GfEngine.Core;
+using GfEngine.Systems;
+using GfEngine.Visuals.Events;
 
-namespace GfEngine.Systems.Commands
+namespace GfEngine.Visuals.Commands
 {
     // 엔진 내의 단발성 처리를 수행하는 커맨드
     public class VisualCommand : ICommand

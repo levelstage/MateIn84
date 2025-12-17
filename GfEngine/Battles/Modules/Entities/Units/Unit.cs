@@ -4,12 +4,11 @@ using GfEngine.Battles.Systems;
 
 namespace GfEngine.Battles.Entities
 {
-    public enum UnitType { Player, Enemy }
 
     public class Unit : Entity
     {
         // === [기본 정보] ===
-        public UnitType Type { get; set; }
+        public IBattleAgent? Controller { get; set; }
         public int Level { get; set; } = 1;
 
         // === [A. 스탯 관련 로직들] ===
@@ -37,7 +36,7 @@ namespace GfEngine.Battles.Entities
             }
         }
         public bool IsDead => CurrentHP == 0;
-        public List<Skill> Skills = new List<Skill>();
+        public Dictionary<string, Skill> Skills = new Dictionary<string, Skill>();
         // AG 리셋
         public void ResetAG(TurnLength length)
         {

@@ -1,6 +1,7 @@
 using GfEngine.Inputs;
 using GfEngine.Battles.Commands;
 using GfEngine.Core;
+using GfEngine.Battles.Entities;
 
 namespace GfEngine.Battles.Systems
 {
@@ -11,9 +12,11 @@ namespace GfEngine.Battles.Systems
         {
             InputAdapter = inputAdapter;
         }
-        public void EnqueueCommands(BattleInputContext context)
+        public IBehavior MakeBehavior(Unit currentUnit)
         {
-            CommandQueue.Instance.Enqueue(new InputCommand(context, InputAdapter));
+            Sequence sequence = new Sequence();
+            sequence.Enqueue(new SkillInputCommand(new BattleInputContext(currentUnit), InputAdapter));
+            return sequence;
         }
     }   
 }

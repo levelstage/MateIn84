@@ -1,16 +1,18 @@
 namespace GfEngine.Core
 {
-    // 큐에 대한 접근은 엔진의 고유 권한이므로 internal.
-    internal class CommandQueue
+    public class BehaviorQueue
     {
-        private static CommandQueue? _instance;
-        public static CommandQueue Instance => _instance ??= new CommandQueue();
-        private LinkedList<ICommand> _list = new LinkedList<ICommand>();
+        private LinkedList<IBehavior> _list = new LinkedList<IBehavior>();
 
-        // 커맨드 추가 (도미노 세우기)
-        public void Enqueue(ICommand cmd)
+        // Behavior 추가 (도미노 세우기)
+        public void Enqueue(IBehavior behavior)
         {
-            _list.AddLast(cmd);
+            _list.AddLast(behavior);
+        }
+        // Behavior 끼어들기(이벤트 등 처리)
+        public void Interrupt(IBehavior behavior)
+        {
+            _list.AddFirst(behavior);
         }
 
         public void Run()
@@ -25,15 +27,15 @@ namespace GfEngine.Core
             // 리스트에 아무것도 없다면 그냥 return
             if (_list.First == null) return;
             // 실행 시작
-            ICommand cmd = _list.First.Value;
+            IBehavior cmd = _list.First.Value;
             _list.RemoveFirst();
 
             // 커맨드 실행! (끝나면 OnCommandFinished 호출)
-            cmd?.Execute(OnCommandFinished);
+            cmd?.Execute(OnBehaviorFinished);
         }
 
         // 커맨드가 완료될 때 콜백으로 들어가는 함수
-        private void OnCommandFinished()
+        private void OnBehaviorFinished()
         {
             TryRunNext(); // 다음 도미노 넘김
         }
