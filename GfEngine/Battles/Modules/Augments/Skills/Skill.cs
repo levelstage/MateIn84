@@ -10,16 +10,18 @@ namespace GfEngine.Battles.Augments
 
     public abstract class Skill : Augment
     {
+        public int RequiredMP { get; set; }
         public TurnLength Length { get; set; } = TurnLength.Full; // 이 스킬이 잡아먹는 턴 길이.
         public Skill() : base() {}
         public Skill(Skill o) : base(o)
         {
+            RequiredMP = o.RequiredMP;
             Length = o.Length;
         }
         public IBehavior MakeBehavior(BattleInputContext context)  // 완성된 context로 스킬을 발동시키는 함수.
         {
             if(context.Caster == null) throw new InvalidDataException("Skill is activated with null caster.");
-            context.Caster.CurrentAG = (double) Length / context.Caster.Speed;  // 턴 밀려나는 로직
+            context.Caster.CurrentAG = (int) Length;  // 턴 밀려나는 로직
             // 스킬마다 다른 처리 로직. 아무튼 IBehavior만 돌려주면 뭘 하든 상관 x.
             return OnCast(context);
         }

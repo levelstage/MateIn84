@@ -25,7 +25,7 @@ namespace GfEngine.Battles.Managers
                 listeners.Remove(subscriber);
             }
         }
-        public Sequence? React(string @event, GameEventData data)
+        public Sequence? React(string @event, GameEventData? data)
         {
             List<string> triggeredEntityIDs = new();
             Sequence eventPhase = new();

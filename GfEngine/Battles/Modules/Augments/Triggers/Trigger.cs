@@ -6,5 +6,5 @@ namespace GfEngine.Battles.Augments;
 public abstract class Trigger : Augment, IEventListener
 {
     public int Priority { get; protected set; }
-    public abstract IBehavior React(GameEventData data);
+    public abstract IBehavior React(GameEventData? data);
 }

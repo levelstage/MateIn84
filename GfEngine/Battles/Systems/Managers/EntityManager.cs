@@ -7,12 +7,8 @@ namespace GfEngine.Battles.Managers
         public static EntityManager Instance => _instance ??= new EntityManager();
         private readonly Dictionary<string, Entity> _allEntities = new Dictionary<string, Entity>();
         private readonly Dictionary<string, int> _nextInstanceNum = new Dictionary<string, int>();
-        public IEnumerable<Unit> AllUnits
-        {
-            get{
-                return _allEntities.Values.OfType<Unit>(); 
-            }
-        }
+        public IEnumerable<Entity> AllEntities => _allEntities.Values;
+        public IEnumerable<Unit> AllUnits => _allEntities.Values.OfType<Unit>(); 
 
         public Unit GetUnit(string id)
         {

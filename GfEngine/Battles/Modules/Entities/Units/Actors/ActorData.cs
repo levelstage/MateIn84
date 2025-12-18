@@ -10,7 +10,5 @@ namespace GfEngine.Battles.Entities
         public int Level { get; set; }
         public int Exp { get; set; }
         
-        // 인벤토리 (이 Actor가 소유한 장비 등)
-        public List<Item> PersonalInventory { get; set; } = new List<Item>();
     }
 }

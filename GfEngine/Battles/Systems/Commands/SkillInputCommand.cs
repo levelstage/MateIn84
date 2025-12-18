@@ -1,6 +1,9 @@
 using GfEngine.Battles.Augments;
 using GfEngine.Inputs;
 using GfEngine.Core.Commands;
+using GfEngine.Battles.Managers;
+using GfEngine.Battles.Core;
+using System.Collections;
 
 namespace GfEngine.Battles.Commands
 {
@@ -34,11 +37,11 @@ namespace GfEngine.Battles.Commands
             }
             if(_context.SelectedSkillID == "NONE")
             {
-                // 밑에 있는 애한테, 현재 이 유닛의 스킬들의 목록, 쿨타임 등을 넘겨줘야 함.
-                _inputAdapter.GetSkillIndex(_context, GetNextInput);
+                // 밑에 있는 애한테, 현재 이 유닛의 스킬들의 목록, 쿨타임 등을 넘겨줘야 함. (그건 Unit을 받아서 알아서 표시하고, 그냥 가능한 스킬 목록만 던져주자.)
+                _inputAdapter.GetSkillIndex(_context, new SkillDomain() { ValidSkillIDs = _context.Caster.GetAvailableSkills() }, GetNextInput);
                 return;
             }
-            Skill skill = _context.Caster.Skills[_context.SelectedSkillID];
+            Skill skill = AugmentManager.Instance.GetSkill(_context.SelectedSkillID);
             SkillArgument arg = skill.RequiredArgument(_context);
             if(arg == SkillArgument.None)
             {

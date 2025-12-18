@@ -21,9 +21,6 @@ public class SessionManager
     {
         Visualizer = visualizer;
         Input = input;
-        // 큐의 주도권이 불러온 게임 데이터의 상태에 따라 주어짐.
-        // QueueManager = TownManager.Instance()
-        // QueueManager = TurnManager.Instance()
         Console.WriteLine("Engine Started. Ready to roll.");
     }
 

@@ -1,200 +1,99 @@
 using GfEngine.Battles.Core;
 using GfEngine.Battles.Augments;
 using GfEngine.Battles.Systems;
+using GfEngine.Core;
+using GfEngine.Core.Commands;
+using GfEngine.Battles.Managers;
+using GfEngine.Systems.Commands;
+using System.Buffers;
 
 namespace GfEngine.Battles.Entities
 {
 
-    public class Unit : Entity
+    public class Unit : Entity, IAGHolder
     {
+        public int this[StatType type] => _status[type];
         // === [기본 정보] ===
         public IBattleAgent? Controller { get; set; }
         public int Level { get; set; } = 1;
-
-        // === [A. 스탯 관련 로직들] ===
-
-        // === [스탯 데이터] ===
-        // 1. 기초 스탯 (원본: 레벨업으로만 성장)
-        public PrimaryStat BaseStats;
-
-        // 2. 파생 스탯 (결과물: 매번 다시 계산됨)
-        public DerivedStat CombatStats;
-
-        // 3. 현재 상태 (HP, MP 등)
-        public int CurrentHP;
-        public int CurrentMP;
-        public int CurrentPoise;
-        public double CurrentAG;
-        // 4. 편의상의 속성들 (Speed, IsDead)
-        public int Speed
+        // 유닛의 4대 게이지. 체력, 마나, 강인도, 행동 게이지
+        public int CurrentHP { get; private set; }
+        public int CurrentMP { get; private set; }
+        public int CurrentPoise { get; private set; }
+        private int _currentAG;
+        public int CurrentAG  // (IAGHolder 인터페이스)
         {
-            get { return CombatStats.Speed; }
+            get
+            {
+                return _currentAG;
+            }
             set
             {
-                RecalcAG(CombatStats.Speed, value);
-                CombatStats.Speed = value;
+                _currentAG = value >= 0 ? value : 0;
             }
         }
         public bool IsDead => CurrentHP == 0;
-        public Dictionary<string, Skill> Skills = new Dictionary<string, Skill>();
+        // 이 유닛에 붙어있는 Augment들
+        public CodeContainer Inventory { get; set; }  // 아이템 박스. 이 유닛의 인벤토리.
+        public CodeContainer Skills { get; set; }  // 스킬 박스. 이 유닛이 가진 모든 스킬.
+        public CodeContainer Traits { get; set; }  // 특성 박스. 이 유닛이 가진 모든 특성.
+        public CodeContainer Triggers { get; set; }  // 트리거 박스. 이 유닛이 가진 모든 트리거.
+        private readonly Status _status;
+        public int Speed => _status[StatType.Speed]; // (IAGHolder 인터페이스)
+
+        public void OnTurnStart(Action onComplete) // (IAGHolder 인터페이스)
+        {
+            if(Controller == null) throw new Exception("Unit must process turn with Controller");
+            TurnManager.Instance.CurrentUnit = this;
+            Sequence mainPhase = new Sequence();
+            var reaction = BattleEventManager.Instance.React(BattleEventName.ON_TURN_START, null);
+            if(reaction != null)mainPhase.Enqueue(reaction);
+            mainPhase.Enqueue(Controller.MakeBehavior(this));
+            mainPhase.Execute(() => {OnTurnEnd(onComplete);});
+        }
+
+        private void OnTurnEnd(Action onComplete)
+        {
+            Sequence? endPhase = BattleEventManager.Instance.React(BattleEventName.ON_TURN_END, null);
+            if(endPhase == null)
+            {
+                TurnManager.Instance.CurrentUnit = null;
+                onComplete?.Invoke();
+                return;
+            }
+            endPhase.Execute(() =>
+            {
+                TurnManager.Instance.CurrentUnit = null;
+                onComplete?.Invoke();
+            });
+        }
+
+        public Unit(Status status)
+        {
+            _status = status;
+            Inventory = new();
+            Skills = new();
+            Traits = new();
+            Triggers = new();
+        }
+
         // AG 리셋
         public void ResetAG(TurnLength length)
         {
-            CurrentAG = (double) length / CombatStats.Speed; 
-        }
-
-        public void RecalcAG(int oldSpeed, int newSpeed)
-        {
-            // 속도가 안바뀌었다면 그냥 return.
-            if (oldSpeed == newSpeed)
-            {
-                return;
-            }
-            // AG 재정규화 공식 적용: New AG = (Current AG * Old Speed) / New Speed
-            if (CurrentAG > 0)
-            {
-                CurrentAG = CurrentAG * oldSpeed / newSpeed; 
-            }
+            CurrentAG = (int)length; 
         }
 
         // AG 초기화
         public void InitializeAG()
         {
-            // 첫 턴은 쿼터 턴 기준으로 스타트.
-            CurrentAG = (double)TurnLength.Quarter / CombatStats.Speed; 
+            // 첫 턴은 하프 턴 기준으로 스타트.
+            CurrentAG = (int)TurnLength.Half; 
         }
 
-        // === [스탯 조작기 (Modifier)] ===
-        public List<StatModifier> StatModifiers = new List<StatModifier>();
-
-        // 스탯 종류 총 개수 (배열 크기용)
-        private static readonly int _statTypeCount = Enum.GetNames(typeof(StatType)).Length;
-
-        // === [Modifier 관리] ===
-        public void AddModifier(StatModifier mod)
+        public List<string> GetAvailableSkills()
         {
-            StatModifiers.Add(mod);
-            UpdateStats();
+            return new();
         }
 
-        public void RemoveModifier(StatModifier mod)
-        {
-            StatModifiers.Remove(mod);
-            UpdateStats();
-        }
-
-        public void RemoveModifiersBySource(string sourceID)
-        {
-            StatModifiers.RemoveAll(m => m.SourceID == sourceID);
-            UpdateStats();
-        }
-
-        // === [핵심 로직: 스탯 갱신 (합연산 방식)] ===
-        public void UpdateStats()
-        {
-            // [Step 0] 임시 버퍼 초기화 (모든 보너스를 여기에 모음)
-            // 인덱스: StatType의 정수값
-            float[] flatSum = new float[_statTypeCount];
-            float[] pctSum = new float[_statTypeCount];
-
-            // [Step 1] 모든 Modifier 순회하며 버퍼에 합산
-            foreach (var mod in StatModifiers)
-            {
-                int index = (int)mod.TargetStat;
-
-                switch (mod.Type)
-                {
-                    case StatModType.Flat:
-                        flatSum[index] += mod.Value;
-                        break;
-                        
-                    case StatModType.PercentAdd:
-                        // 예: 10% -> 0.1f로 변환해서 누적
-                        pctSum[index] += mod.Value / 100f; 
-                        break;
-                }
-            }
-
-            // [Step 2] 기초 스탯(Primary) 확정
-            // 공식: (Base + Flat) * (1 + Sum%)
-            PrimaryStat t = new PrimaryStat();
-            
-            t.Vit = CalcPrimary(BaseStats.Vit, StatType.Vit, flatSum, pctSum);
-            t.End = CalcPrimary(BaseStats.End, StatType.End, flatSum, pctSum);
-            t.Str = CalcPrimary(BaseStats.Str, StatType.Str, flatSum, pctSum);
-            t.Agi = CalcPrimary(BaseStats.Agi, StatType.Agi, flatSum, pctSum);
-            t.Dex = CalcPrimary(BaseStats.Dex, StatType.Dex, flatSum, pctSum);
-            t.Luk = CalcPrimary(BaseStats.Luk, StatType.Luk, flatSum, pctSum);
-            t.Spr = CalcPrimary(BaseStats.Spr, StatType.Spr, flatSum, pctSum);
-            t.Mag = CalcPrimary(BaseStats.Mag, StatType.Mag, flatSum, pctSum);
-            t.Int = CalcPrimary(BaseStats.Int, StatType.Int, flatSum, pctSum);
-
-            // [Step 3] 파생 스탯(Derived) 변환 (기획된 공식 적용)
-            DerivedStat final = new DerivedStat();
-
-            // 3-1. 자원
-            final.MaxHP = t.Vit * 2;  // 생명력 * 2
-            final.MaxMP = t.Mag + t.Int;  // 마력 + 지능
-            final.MaxPoise = t.End * 2 + t.Spr;  // 지구력 + 정신력. 지구력이 더 중요함.
-            final.MaxWeight = t.Str + t.End;  // 근력 + 지구력
-
-            // 3-2. 공격
-            final.AtkPhy = t.Str / 3;  // 근력 / 3
-            final.AtkMag = t.Mag / 3;  // 마력 / 3
-            final.Suppression = 5;  // 고정치. 장비에 의존함.
-            final.CritDmg = 150 + (t.Dex * 5);   // 기본 150% + 솜씨 보정
-
-            // 3-3. 방어 & 유틸
-            final.DefPhy = t.Vit / 5 + t.End / 10;  // 생명력과 지구력에 의해 결정됨. 생명력이 더 중요.
-            final.DefMag = t.Vit / 10 + t.Spr / 5;  // 생명력과 정신력에 의해 결정됨. 정신력이 더 중요.
-            final.CritResist = Math.Min(60, t.Luk * 5); // 최대 60%
-
-
-            // [Step 4] 파생 스탯 최종 보정 (Modifier 적용)
-            // 여기도 똑같이 (값 + Flat) * (1 + Sum%)
-            ApplyDerivedMod(ref final.MaxHP, StatType.MaxHP, flatSum, pctSum);
-            ApplyDerivedMod(ref final.MaxMP, StatType.MaxMP, flatSum, pctSum);
-            ApplyDerivedMod(ref final.AtkPhy, StatType.AtkPhy, flatSum, pctSum);
-            ApplyDerivedMod(ref final.AtkMag, StatType.AtkMag, flatSum, pctSum);
-            ApplyDerivedMod(ref final.DefPhy, StatType.DefPhy, flatSum, pctSum);
-            ApplyDerivedMod(ref final.DefMag, StatType.DefMag, flatSum, pctSum);
-            
-            ApplyDerivedMod(ref final.MaxPoise, StatType.MaxPoise, flatSum, pctSum);
-            ApplyDerivedMod(ref final.CritDmg, StatType.CritDmg, flatSum, pctSum);
-
-            // 결과 저장
-            CombatStats = final;
-        }
-
-        // [Helper] 기초 스탯 계산용
-        private int CalcPrimary(int baseVal, StatType type, float[] flats, float[] pcts)
-        {
-            int idx = (int)type;
-            float flat = flats[idx];
-            float pct = pcts[idx]; 
-
-            // (기본 + 고정합) * (1 + 퍼센트합)
-            float result = (baseVal + flat) * (1.0f + pct);
-            return (int)result;
-        }
-
-        // [Helper] 파생 스탯 적용용 (ref 사용)
-        private void ApplyDerivedMod(ref int val, StatType type, float[] flats, float[] pcts)
-        {
-            int idx = (int)type;
-            float flat = flats[idx];
-            float pct = pcts[idx];
-
-            float result = (val + flat) * (1.0f + pct);
-            val = (int)result;
-        }
-
-        // [Helper] 상태 완전 회복 (테스트용)
-        public void FullRestore()
-        {
-            CurrentHP = CombatStats.MaxHP;
-            CurrentMP = CombatStats.MaxMP;
-            CurrentPoise = CombatStats.MaxPoise;
-        }
     }
 }
