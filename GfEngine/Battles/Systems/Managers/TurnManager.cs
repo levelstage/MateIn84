@@ -1,7 +1,6 @@
 using GfEngine.Battles.Core;
 using GfEngine.Battles.Entities;
-using GfEngine.Core;
-using GfEngine.Systems.Commands;
+using GfEngine.Core.Commands;
 
 namespace GfEngine.Battles.Managers
 {
@@ -50,6 +49,8 @@ namespace GfEngine.Battles.Managers
         private void OnTurnStart()
         {
             // 여기서 턴 시작 처리를 해주고, 콜백으로 ProcessTurn을 넘긴다.
+            Sequence startPhase = new Sequence();
+            startPhase.Execute(ProcessTurn);
         }
 
         private void OnTurnEnd()

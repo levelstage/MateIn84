@@ -196,40 +196,5 @@ namespace GfEngine.Battles.Entities
             CurrentMP = CombatStats.MaxMP;
             CurrentPoise = CombatStats.MaxPoise;
         }
-
-        // === [B. 이벤트 관련 로직들] ===
-        
-        private Dictionary<string, List<Action<BattleEventData>>> _subscribers 
-            = new Dictionary<string, List<Action<BattleEventData>>>();
-
-        // 1. 구독 (Subscribe)
-        public void Subscribe(string eventName, Action<BattleEventData> callback)
-        {
-            if (!_subscribers.ContainsKey(eventName))
-                _subscribers[eventName] = new List<Action<BattleEventData>>();
-
-            _subscribers[eventName].Add(callback);
-        }
-
-        // 2. 취소 (Unsubscribe)
-        public void Unsubscribe(string eventName, Action<BattleEventData> callback)
-        {
-            if (_subscribers.ContainsKey(eventName))
-                _subscribers[eventName].Remove(callback);
-        }
-
-        // 3. 방송 (Publish)
-        public void Publish(string eventName, BattleEventData data)
-        {
-            if (_subscribers.ContainsKey(eventName))
-            {
-                // 리스트 복사 후 순회 (안전성 확보)
-                var callbacks = new List<Action<BattleEventData>>(_subscribers[eventName]);
-                foreach (var callback in callbacks)
-                {
-                    callback.Invoke(data);
-                }
-            }
-        }
     }
 }

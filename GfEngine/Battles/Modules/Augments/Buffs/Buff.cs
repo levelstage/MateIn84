@@ -5,13 +5,13 @@ namespace GfEngine.Battles.Augments
     public abstract class Buff : Augment
     {   
         // 지속시간 (턴)
-        public int Duration { get; set; }
+        public double Duration { get; set; }
         // 중첩 (Stack)
         public int Stack { get; set; }
         // 만료 여부 확인
         public bool IsExpired { get; }
         
-        // 버프의 속성 4가지
+        // 버프의 불 속성 4가지
         public bool IsRemovable { get; }
         public bool IsBuff { get; }
         public bool IsDebuff{ get; }

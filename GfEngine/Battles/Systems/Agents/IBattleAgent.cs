@@ -1,5 +1,5 @@
 using GfEngine.Battles.Entities;
-using GfEngine.Core;
+using GfEngine.Core.Commands;
 using GfEngine.Inputs;
 
 namespace GfEngine.Battles.Systems

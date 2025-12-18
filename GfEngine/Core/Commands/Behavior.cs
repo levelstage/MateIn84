@@ -1,4 +1,4 @@
-namespace GfEngine.Core;
+namespace GfEngine.Core.Commands;
 public class Behavior : IBehavior
 {
     private readonly Queue<ICommand> _queue;  // 처리할 커맨드들을 순차적으로 담아둔 큐

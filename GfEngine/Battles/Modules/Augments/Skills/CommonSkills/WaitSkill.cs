@@ -1,6 +1,6 @@
 using GfEngine.Inputs;
 using GfEngine.Battles.Core;
-using GfEngine.Core;
+using GfEngine.Core.Commands;
 
 namespace GfEngine.Battles.Augments.CommonSkills
 {

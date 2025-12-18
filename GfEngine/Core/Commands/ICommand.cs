@@ -1,4 +1,4 @@
-namespace GfEngine.Core
+namespace GfEngine.Core.Commands
 {
     // 모든 커맨드의 규격
     public interface ICommand

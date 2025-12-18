@@ -1,10 +1,9 @@
 using GfEngine.Battles.Core;
 using GfEngine.Battles.Managers;
-using GfEngine.Core;
-using GfEngine.Systems.Commands;
-using GfEngine.Visuals.BattleEvents;
-using GfEngine.Inputs;
+using GfEngine.Core.Commands;
 using GfEngine.Visuals.Commands;
+using GfEngine.Battles.Visuals;
+using GfEngine.Inputs;
 
 namespace GfEngine.Battles.Augments
 {

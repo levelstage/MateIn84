@@ -1,4 +1,4 @@
-using GfEngine.Core;
+using GfEngine.Core.Commands;
 
 namespace GfEngine.Systems.Commands
 {

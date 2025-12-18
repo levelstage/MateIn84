@@ -1,4 +1,4 @@
-namespace GfEngine.Core
+namespace GfEngine.Core.Commands
 {
     // 시스템 내에서 커맨드를 처리하는 최소 단위. 시스템은 커맨드를 직접 처리하지 않고, 항상 Behavior를 거쳐가야 한다.
     public interface IBehavior

@@ -23,6 +23,14 @@ namespace GfEngine.Battles.Managers
             }
             throw new Exception($"Unit with ID {id} not found.");
         }
+        public Entity GetEntity(string id)
+        {
+            if(_allEntities.TryGetValue(id, out var entity))
+            {
+                return entity;
+            }
+            throw new Exception($"Entity with ID {id} not found.");
+        }
         private int GetInstanceNum(string code)
         {
             if(!_nextInstanceNum.ContainsKey(code)) _nextInstanceNum[code] = 1;  // 0번은 데이터베이스상의 데이터로 간주.

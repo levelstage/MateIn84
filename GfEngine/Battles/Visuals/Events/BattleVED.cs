@@ -1,8 +1,8 @@
 using GfEngine.Visuals.Events;
 
-namespace GfEngine.Visuals.BattleEvents
+namespace GfEngine.Battles.Visuals
 {
-    public class BattleVED : VisualEventData
+    public record BattleVED : VisualEventData
     {
         public bool IsPreview { get; set; } = false;
     }

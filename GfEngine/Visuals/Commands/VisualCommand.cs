@@ -1,4 +1,4 @@
-using GfEngine.Core;
+using GfEngine.Core.Commands;
 using GfEngine.Systems;
 using GfEngine.Visuals.Events;
 
